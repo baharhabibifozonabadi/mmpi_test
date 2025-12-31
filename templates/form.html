@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آزمون شخصیت MMPI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #1b2a36;
+            --muted: #6b7a86;
+            --brand: #0f8b8d;
+            --brand-2: #f4b740;
+            --paper: #ffffff;
+            --card: #fefdfb;
+            --ring: rgba(15, 139, 141, 0.2);
+        }
+
+        body {
+            font-family: "Vazirmatn", Tahoma, sans-serif;
+            background: radial-gradient(1200px 600px at 90% -20%, #f8efe0 0%, transparent 60%),
+                        radial-gradient(900px 600px at 10% 120%, #e7f5f3 0%, transparent 60%),
+                        linear-gradient(180deg, #f6f7f3 0%, #f2f4f7 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--ink);
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background-image: radial-gradient(#e6ecef 1px, transparent 1px);
+            background-size: 22px 22px;
+            opacity: 0.35;
+            pointer-events: none;
+        }
+
+        .wizard-container { max-width: 860px; width: 100%; min-height: 520px; position: relative; padding: 12px; }
+        .card {
+            border: 1px solid #e7ecef;
+            box-shadow: 0 20px 60px rgba(18, 38, 63, 0.12);
+            border-radius: 24px;
+            overflow: hidden;
+            background: var(--card);
+            backdrop-filter: blur(2px);
+        }
+
+        .card-header-lite {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 16px 18px;
+            background: linear-gradient(135deg, #ffffff 0%, #f7f6f2 100%);
+            border-bottom: 1px solid #edf0f2;
+        }
+
+        .title-block .title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+        .title-block .subtitle {
+            font-size: 0.95rem;
+            color: var(--muted);
+        }
+
+        .step-badge {
+            background: #f3f8f8;
+            color: var(--brand);
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border: 1px solid rgba(15, 139, 141, 0.25);
+        }
+        
+        .step { display: none; animation: fadeIn 0.4s; }
+        .step.active { display: block; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .option-card {
+            border: 1.5px solid #e5eaef;
+            border-radius: 14px;
+            padding: 16px 18px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: #fff;
+            box-shadow: 0 6px 20px rgba(27, 42, 54, 0.05);
+        }
+        .option-card:hover { background-color: #f6faf9; border-color: #cfe8e6; transform: translateY(-1px); }
+        
+        .option-card .form-check-input {
+            width: 20px;
+            height: 20px;
+            margin: 0;
+            border: 2px solid #c7d2d9;
+        }
+        input[type="radio"]:checked + .option-label { font-weight: 700; color: var(--brand); }
+        .option-card.selected {
+            border-color: var(--brand);
+            background: linear-gradient(90deg, rgba(15,139,141,0.08), rgba(244,183,64,0.08));
+            box-shadow: 0 8px 26px rgba(15, 139, 141, 0.18);
+        }
+        .option-card.selected .form-check-input {
+            background-color: var(--brand);
+            border-color: var(--brand);
+            box-shadow: 0 0 0 4px var(--ring);
+        }
+
+        .progress { height: 8px; border-radius: 999px; background-color: #e6eef0; overflow: hidden; }
+        .progress-bar { transition: width 0.4s ease; }
+        .progress-wrap { padding: 14px 18px; background: #f8fafb; border-bottom: 1px solid #edf0f2; }
+
+        .btn-nav { min-width: 130px; border-radius: 999px; padding: 10px 22px; font-weight: 600; }
+        .btn-primary {
+            background: linear-gradient(135deg, var(--brand) 0%, #0e6971 100%);
+            border: none;
+            box-shadow: 0 10px 18px rgba(15, 139, 141, 0.25);
+        }
+        .btn-outline-secondary {
+            border-color: #d1d8de;
+            color: #52606d;
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #1c9b6c 0%, #117a52 100%);
+            border: none;
+            box-shadow: 0 10px 18px rgba(28, 155, 108, 0.25);
+        }
+        
+        .question-text { font-size: 1.4rem; font-weight: 700; line-height: 1.75; color: var(--ink); margin-bottom: 26px; }
+        .step-counter { color: var(--muted); font-size: 0.9rem; margin-bottom: 12px; }
+
+        .options-container { display: grid; gap: 10px; }
+
+        @media (max-width: 768px) {
+            .wizard-container { padding: 8px; }
+            .card { border-radius: 18px; }
+            .question-text { font-size: 1.2rem; }
+            .btn-nav { min-width: 110px; padding: 10px 16px; }
+            .title-block .title { font-size: 1.1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="wizard-container">
+        <div class="card">
+            <div class="card-header-lite">
+                <div class="title-block">
+                    <div class="title">آزمون MMPI</div>
+                    <div class="subtitle">فرم کوتاه ۷۱ سوال • پاسخ‌های بله/خیر</div>
+                </div>
+                <div class="step-badge" id="stepBadge">مرحله شروع</div>
+            </div>
+            <div class="progress-wrap">
+                <div class="progress">
+                    <div class="progress-bar" id="progressBar" role="progressbar" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="p-4 p-md-5">
+            <form id="mmpiForm" method="POST" action="/">
+                
+                {% if error %}
+                <div class="alert alert-danger text-center mb-4">{{ error }}</div>
+                {% endif %}
+
+                <div class="step active" data-step="0">
+                    <h3 class="text-center mb-3">آزمون شخصیت MMPI</h3>
+                    <p class="text-center text-muted mb-5">برای شروع آزمون، سن و جنسیت را وارد کنید.</p>
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">سن شما:</label>
+                        <input type="number" name="age" id="inputAge" class="form-control form-control-lg" placeholder="مثلا: 25" required>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">جنسیت:</label>
+                        <div class="d-flex gap-3">
+                            <div class="option-card w-50 justify-content-center" onclick="selectGender(this)">
+                                <input class="form-check-input me-2" type="radio" name="gender" value="مرد" id="genderM" required>
+                                <label class="option-label m-0" for="genderM">مرد</label>
+                            </div>
+                            <div class="option-card w-50 justify-content-center" onclick="selectGender(this)">
+                                <input class="form-check-input me-2" type="radio" name="gender" value="زن" id="genderF">
+                                <label class="option-label m-0" for="genderF">زن</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% for q in questions %}
+                <div class="step" data-step="{{ loop.index }}">
+                    <div class="step-counter">سوال {{ loop.index }} از {{ questions|length }}</div>
+                    <p class="question-text">{{ q }}</p>
+                    
+                    <div class="options-container">
+                        <div class="option-card" onclick="selectOption(this)">
+                            <input class="form-check-input ms-2" type="radio" name="q{{ loop.index }}" value="yes" id="q{{ loop.index }}_yes">
+                            <label class="option-label w-100" for="q{{ loop.index }}_yes">بله</label>
+                        </div>
+                        
+                        <div class="option-card" onclick="selectOption(this)">
+                            <input class="form-check-input ms-2" type="radio" name="q{{ loop.index }}" value="no" id="q{{ loop.index }}_no">
+                            <label class="option-label w-100" for="q{{ loop.index }}_no">خیر</label>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <div class="d-flex justify-content-between mt-5 pt-3 border-top">
+                    <button type="button" class="btn btn-outline-secondary btn-nav" id="prevBtn" onclick="nextPrev(-1)" disabled>قبلی</button>
+                    <button type="button" class="btn btn-primary btn-nav" id="nextBtn" onclick="nextPrev(1)">شروع آزمون</button>
+                    <button type="submit" class="btn btn-success btn-nav" id="submitBtn" style="display: none;">مشاهده نتیجه</button>
+                </div>
+
+            </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 0;
+        const totalQuestions = {{ questions|length }};
+        const steps = document.querySelectorAll('.step');
+        const progressBar = document.getElementById('progressBar');
+        const stepBadge = document.getElementById('stepBadge');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const submitBtn = document.getElementById('submitBtn');
+
+        function selectGender(card) {
+            document.querySelectorAll('input[name="gender"]').forEach(el => el.closest('.option-card').classList.remove('selected'));
+            card.classList.add('selected');
+            card.querySelector('input').checked = true;
+        }
+
+        function selectOption(card) {
+            const groupName = card.querySelector('input').name;
+            
+            document.querySelectorAll(`input[name="${groupName}"]`).forEach(el => {
+                el.closest('.option-card').classList.remove('selected');
+            });
+            
+            card.classList.add('selected');
+            card.querySelector('input').checked = true;
+        }
+
+        function showStep(n) {
+            steps.forEach(step => step.classList.remove('active'));
+            steps[n].classList.add('active');
+
+            if (n === 0) {
+                prevBtn.disabled = true;
+                nextBtn.innerHTML = "شروع آزمون";
+                nextBtn.style.display = "block";
+                submitBtn.style.display = "none";
+                stepBadge.textContent = "مرحله شروع";
+            } else {
+                prevBtn.disabled = false;
+                nextBtn.innerHTML = "بعدی";
+                
+                if (n === totalQuestions) {
+                    nextBtn.style.display = "none";
+                    submitBtn.style.display = "block";
+                } else {
+                    nextBtn.style.display = "block";
+                    submitBtn.style.display = "none";
+                }
+                stepBadge.textContent = `سوال ${n} از ${totalQuestions}`;
+            }
+
+            let progress = (n / totalQuestions) * 100;
+            progressBar.style.width = progress + "%";
+        }
+
+        function nextPrev(n) {
+            if (n === 1 && !validateForm()) return false;
+
+            if (currentStep + n > totalQuestions) return false;
+
+            currentStep = currentStep + n;
+            showStep(currentStep);
+            
+            window.scrollTo(0,0);
+        }
+
+        function validateForm() {
+            const currentStepDiv = steps[currentStep];
+            
+            if (currentStep === 0) {
+                const age = document.getElementById('inputAge').value;
+                const genderM = document.getElementById('genderM').checked;
+                const genderF = document.getElementById('genderF').checked;
+                
+                if (!age) {
+                    alert("لطفا سن خود را وارد کنید.");
+                    return false;
+                }
+                if (!genderM && !genderF) {
+                    alert("لطفا جنسیت خود را انتخاب کنید.");
+                    return false;
+                }
+                return true;
+            }
+
+            const options = currentStepDiv.querySelectorAll('input[type="radio"]');
+            let answered = false;
+            options.forEach(opt => {
+                if (opt.checked) answered = true;
+            });
+
+            if (!answered) {
+                alert("لطفا یک گزینه را انتخاب کنید.");
+                return false;
+            }
+            return true;
+        }
+
+        showStep(currentStep);
+        
+        document.getElementById("mmpiForm").onkeypress = function(e) {
+            var key = e.charCode || e.keyCode || 0;     
+            if (key == 13) e.preventDefault();
+        }
+    </script>
+</body>
+</html>
